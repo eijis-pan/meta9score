@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace meta9score
 {
     public partial class ScoreForm : Form
@@ -5,23 +7,38 @@ namespace meta9score
         private BilliardsModuleEventLogger billiardsModuleEventLogger;
         private ConfigDialog configDialog;
 
+        private FlowLayoutPanel[] flowLayoutPocketedTeams;
+        private FlowLayoutPanel[] flowLayoutNocountTeams;
+
         private Label[] labelPlayers;
         private Label[] labelSinglePlayers;
         private Label[][] labelTeamPlayers;
 
         private Label[] labelCurrentScores;
+        private Label[] labelTotalScores;
         private Label[] labelRemainPoints;
 
         private Label[] labelBalls;
         private Label[] label9Balls;
 
         private int goalPoint = 120;
-
+        private bool teamMemberFixed = false;
+        private bool gameModeFixed = false;
         private string? lastShotPlayer = null; 
 
         public ScoreForm()
         {
             InitializeComponent();
+
+            flowLayoutPocketedTeams = new FlowLayoutPanel[]
+            {
+                flowLayoutPocketedTeam1, flowLayoutPocketedTeam2
+            };
+
+            flowLayoutNocountTeams = new FlowLayoutPanel[]
+            {
+                flowLayoutNocountTeam1, flowLayoutNocountTeam2
+            };
 
             labelPlayers = new Label[]
             {
@@ -42,6 +59,11 @@ namespace meta9score
             labelCurrentScores = new Label[]
             {
                 labelCurrentScoreTeam1, labelCurrentScoreTeam2
+            };
+
+            labelTotalScores = new Label[]
+            {
+                labelTotalScoreTeam1, labelTotalScoreTeam2
             };
 
             labelRemainPoints = new Label[]
@@ -66,10 +88,14 @@ namespace meta9score
 
             billiardsModuleEventLogger = new BilliardsModuleEventLogger();
             //billiardsModuleEventLogger.OnLogReceived += BilliardsModuleEventLogger_OnLogReceived;
+            billiardsModuleEventLogger.OnStartingGameReceived += BilliardsModuleEventLogger_OnStartingGameReceived;
             billiardsModuleEventLogger.OnGameStateReceived += BilliardsModuleEventLogger_OnGameStateReceived;
+            billiardsModuleEventLogger.OnGameResetReceived += BilliardsModuleEventLogger_OnGameResetReceived;
+            billiardsModuleEventLogger.OnRemoteLobbyOpened += BilliardsModuleEventLogger_OnRemoteLobbyOpened;
             billiardsModuleEventLogger.OnRemotePlayersChanged += BilliardsModuleEventLogger_OnRemotePlayersChanged;
             billiardsModuleEventLogger.OnRemoteTurnSimulate += BilliardsModuleEventLogger_OnRemoteTurnSimulate;
             //billiardsModuleEventLogger.OnRemoteBallsPocketedChanged += BilliardsModuleEventLogger_OnRemoteBallsPocketedChanged;
+            billiardsModuleEventLogger.OnRemoteGameEnded += BilliardsModuleEventLogger_OnRemoteGameEnded;
         }
 
         private void FormScore_Load(object sender, EventArgs e)
@@ -79,6 +105,8 @@ namespace meta9score
 
         private void init()
         {
+            teamMemberFixed = false;
+            gameModeFixed = false;
             lastShotPlayer = null;
             playersReset();
             comboBoxGoalPointList.SelectedIndex = 0;
@@ -105,6 +133,10 @@ namespace meta9score
             {
                 labelScore.Text = "0";
             }
+            foreach (var labelScore in labelTotalScores)
+            {
+                labelScore.Text = "0";
+            }
             goalPoint = Convert.ToInt32(comboBoxGoalPointList.SelectedItem);
             foreach (var labelScore in labelRemainPoints)
             {
@@ -124,6 +156,17 @@ namespace meta9score
         }
         */
 
+        private void BilliardsModuleEventLogger_OnStartingGameReceived(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs)
+            {
+                return;
+            }
+
+            gameModeFixed = false;
+        }
+
         private void BilliardsModuleEventLogger_OnGameStateReceived(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
@@ -132,7 +175,31 @@ namespace meta9score
                 return;
             }
 
-            updatePocketed(PoolState.ballProcketedFlags(billiardsModuleEventArgs.poolState.ballsPocketedSynced));
+            var ballProcketedFlags = PoolState.ballProcketedFlags(billiardsModuleEventArgs.poolState.ballsPocketedSynced);
+            updatePocketed(ballProcketedFlags);
+            checkGameMode(ballProcketedFlags);
+        }
+
+        private void BilliardsModuleEventLogger_OnGameResetReceived(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs)
+            {
+                return;
+            }
+
+            rollbackCurrentGame();
+        }
+
+        private void BilliardsModuleEventLogger_OnRemoteLobbyOpened(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs)
+            {
+                return;
+            }
+
+            resetSubTotal();
         }
 
         private void BilliardsModuleEventLogger_OnRemotePlayersChanged(object? sender, EventArgs args)
@@ -175,8 +242,97 @@ namespace meta9score
             updatePocketed(billiardsModuleEventArgs.ballProcketedFlags);
         }
 
+        private void BilliardsModuleEventLogger_OnRemoteGameEnded(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue)
+            {
+                return;
+            }
+
+            // resetSubTotal();
+        }
+
+        private void checkGameMode(bool[] ballProcketedFlags)
+        {
+            if (gameModeFixed)
+            {
+                return;
+            }
+
+            bool hiBallAlive = false;
+            for (int i = 10; i < ballProcketedFlags.Length; i++)
+            {
+                if (!ballProcketedFlags[i])
+                {
+                    hiBallAlive = true;
+                    break;
+                }
+            }
+
+            if (hiBallAlive)
+            {
+                changeTo8ballMode();
+            }
+            else
+            {
+                changeTo9ballMode();
+            }
+
+            gameModeFixed = true;
+        }
+
+        private void changeTo8ballMode()
+        {
+            for (int i = 9; i <= labelBalls.Length; i++)
+            {
+                var labelBall = labelBalls[i - 1];
+                labelBall.Tag = (i - 8).ToString();
+                labelBall.Visible = true;
+            }
+        }
+
+        private void changeTo9ballMode()
+        {
+            labelBalls[9 - 1].Tag = "9";
+            for (int i = 10; i <= labelBalls.Length; i++)
+            {
+                var labelBall = labelBalls[i - 1];
+                labelBall.Tag = "0";
+                labelBall.Visible = false;
+            }
+        }
+
+        private void rollbackCurrentGame()
+        {
+            for (int i = 0; i < labelTeamPlayers.Length; i++)
+            {
+                var labelCurrentScore = labelCurrentScores[i];
+                var labelTotalScore = labelTotalScores[i];
+                var labelRemainPoint = labelRemainPoints[i];
+
+                var subTotal = int.Parse(labelCurrentScore.Text);
+                var total = int.Parse(labelTotalScore.Text) - subTotal;
+                labelTotalScore.Text = total.ToString();
+                labelRemainPoint.Text = (goalPoint - total).ToString();
+            }
+        }
+
+        private void resetSubTotal()
+        {
+            for (int i = 0; i < labelTeamPlayers.Length; i++)
+            {
+                labelCurrentScores[i].Text = "0";
+            }
+        }
+
         private void updatePocketed(bool[] ballProcketedFlags)
         {
+            var teamIndex = indexOfLastShotTeamByPlayer(lastShotPlayer);
+            if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
+            {
+                lastShotPlayer = null;
+            }
             for (int i = 0; i < ballProcketedFlags.Length; i++)
             {
                 if (0 < i && i <= labelBalls.Length)
@@ -186,12 +342,17 @@ namespace meta9score
                     {
                         if (labelBall.Parent == flowLayoutAvailBalls)
                         {
-                            if (null != lastShotPlayer && null != labelBall.Tag)
+                            var moveToParent = flowLayoutPocketedUnknown;
+                            if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
                             {
-                                scoreCountUp(int.Parse(labelBall.Tag.ToString()));
+                                if (null != labelBall.Tag)
+                                {
+                                    scoreCountUp(teamIndex, int.Parse(labelBall.Tag.ToString()));
+                                }
+                                moveToParent = flowLayoutPocketedTeams[teamIndex];
                             }
+                            labelBall.Parent = moveToParent;
                         }
-                        labelBall.Parent = flowLayoutPocketed;
                     }
                     else
                     {
@@ -201,39 +362,42 @@ namespace meta9score
             }
         }
 
-        private void scoreCountUp(int point)
+        private int indexOfLastShotTeamByPlayer(string lastShotPlayer)
         {
-            if (null == lastShotPlayer || 0 == point)
+            if (null == lastShotPlayer)
             {
-                return;
+                return -1;
             }
 
-            Label? labelCurrentScore = null;
-            Label? labelRemainPoint = null;
             for (int i = 0; i < labelTeamPlayers.Length; i++)
             {
                 for (int j = 0; j < labelTeamPlayers[i].Length; j++)
                 {
                     if (labelTeamPlayers[i][j].Text == lastShotPlayer)
                     {
-                        labelCurrentScore = labelCurrentScores[i];
-                        labelRemainPoint = labelRemainPoints[i];
-                        break;
+                        return i;
                     }
-                }
-                if (null != labelCurrentScore && null != labelRemainPoint)
-                {
-                    break;
                 }
             }
 
-            if (null == labelCurrentScore || null == labelRemainPoint)
+            return -1;
+        }
+
+        private void scoreCountUp(int teamIndex, int point)
+        {
+            if (teamIndex < 0 || labelTeamPlayers.Length <= teamIndex || 0 == point)
             {
                 return;
             }
 
-            var total = int.Parse(labelCurrentScore.Text) + point;
-            labelCurrentScore.Text = total.ToString();
+            var labelCurrentScore = labelCurrentScores[teamIndex];
+            var labelTotalScore = labelTotalScores[teamIndex];
+            var labelRemainPoint = labelRemainPoints[teamIndex];
+
+            var subTotal = int.Parse(labelCurrentScore.Text) + point;
+            labelCurrentScore.Text = subTotal.ToString();
+            var total = int.Parse(labelTotalScore.Text) + point;
+            labelTotalScore.Text = total.ToString();
             labelRemainPoint.Text = (goalPoint - total).ToString();
         }
 

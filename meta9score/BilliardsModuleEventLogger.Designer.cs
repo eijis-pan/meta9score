@@ -35,16 +35,17 @@
             this.JumpToTail = new System.Windows.Forms.Button();
             this.ClearLog = new System.Windows.Forms.Button();
             this.BilliardsLog = new System.Windows.Forms.TabPage();
-            this.richText = new System.Windows.Forms.RichTextBox();
             this.JumpToTail2 = new System.Windows.Forms.Button();
             this.ClearLog2 = new System.Windows.Forms.Button();
-            this.Analysis = new System.Windows.Forms.TabPage();
+            this.BilliardLogPanel = new System.Windows.Forms.Panel();
+            this.richText = new System.Windows.Forms.RichTextBox();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.tabControl.SuspendLayout();
             this.AllVrcLog.SuspendLayout();
             this.BilliardsLog.SuspendLayout();
+            this.BilliardLogPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // fileSystemWatcher
@@ -75,7 +76,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl.Controls.Add(this.AllVrcLog);
             this.tabControl.Controls.Add(this.BilliardsLog);
-            this.tabControl.Controls.Add(this.Analysis);
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl.Name = "tabControl";
@@ -121,32 +121,15 @@
             // 
             // BilliardsLog
             // 
-            this.BilliardsLog.Controls.Add(this.richText);
             this.BilliardsLog.Controls.Add(this.JumpToTail2);
             this.BilliardsLog.Controls.Add(this.ClearLog2);
+            this.BilliardsLog.Controls.Add(this.BilliardLogPanel);
             this.BilliardsLog.Location = new System.Drawing.Point(4, 34);
             this.BilliardsLog.Name = "BilliardsLog";
             this.BilliardsLog.Size = new System.Drawing.Size(843, 359);
             this.BilliardsLog.TabIndex = 2;
             this.BilliardsLog.Text = "BilliardsLog";
             this.BilliardsLog.UseVisualStyleBackColor = true;
-            // 
-            // richText
-            // 
-            this.richText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richText.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.richText.Font = new System.Drawing.Font("ＭＳ ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.richText.HideSelection = false;
-            this.richText.Location = new System.Drawing.Point(0, 0);
-            this.richText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.richText.Name = "richText";
-            this.richText.ReadOnly = true;
-            this.richText.Size = new System.Drawing.Size(847, 306);
-            this.richText.TabIndex = 7;
-            this.richText.Text = "";
-            this.richText.WordWrap = false;
             // 
             // JumpToTail2
             // 
@@ -155,10 +138,9 @@
             this.JumpToTail2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.JumpToTail2.Name = "JumpToTail2";
             this.JumpToTail2.Size = new System.Drawing.Size(107, 38);
-            this.JumpToTail2.TabIndex = 6;
+            this.JumpToTail2.TabIndex = 11;
             this.JumpToTail2.Text = "JumpToTail";
             this.JumpToTail2.UseVisualStyleBackColor = true;
-            this.JumpToTail2.Click += new System.EventHandler(this.JumpToTail2_Click);
             // 
             // ClearLog2
             // 
@@ -167,19 +149,35 @@
             this.ClearLog2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.ClearLog2.Name = "ClearLog2";
             this.ClearLog2.Size = new System.Drawing.Size(107, 38);
-            this.ClearLog2.TabIndex = 5;
+            this.ClearLog2.TabIndex = 10;
             this.ClearLog2.Text = "ClearLog";
             this.ClearLog2.UseVisualStyleBackColor = true;
-            this.ClearLog2.Click += new System.EventHandler(this.ClearLog2_Click);
             // 
-            // Analysis
+            // BilliardLogPanel
             // 
-            this.Analysis.Location = new System.Drawing.Point(4, 34);
-            this.Analysis.Name = "Analysis";
-            this.Analysis.Size = new System.Drawing.Size(843, 359);
-            this.Analysis.TabIndex = 1;
-            this.Analysis.Text = "Analysis";
-            this.Analysis.UseVisualStyleBackColor = true;
+            this.BilliardLogPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.BilliardLogPanel.Controls.Add(this.richText);
+            this.BilliardLogPanel.Location = new System.Drawing.Point(0, 0);
+            this.BilliardLogPanel.Name = "BilliardLogPanel";
+            this.BilliardLogPanel.Size = new System.Drawing.Size(843, 308);
+            this.BilliardLogPanel.TabIndex = 8;
+            // 
+            // richText
+            // 
+            this.richText.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.richText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richText.Font = new System.Drawing.Font("ＭＳ ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.richText.HideSelection = false;
+            this.richText.Location = new System.Drawing.Point(0, 0);
+            this.richText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.richText.Name = "richText";
+            this.richText.ReadOnly = true;
+            this.richText.Size = new System.Drawing.Size(843, 308);
+            this.richText.TabIndex = 10;
+            this.richText.Text = "";
+            this.richText.WordWrap = false;
             // 
             // backgroundWorker
             // 
@@ -215,6 +213,7 @@
             this.AllVrcLog.ResumeLayout(false);
             this.AllVrcLog.PerformLayout();
             this.BilliardsLog.ResumeLayout(false);
+            this.BilliardLogPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -227,13 +226,13 @@
         private TabPage AllVrcLog;
         private Button ClearLog;
         private TextBox planeText;
-        private TabPage Analysis;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
         private Button JumpToTail;
         private StatusStrip statusStrip;
         private TabPage BilliardsLog;
+        private Panel BilliardLogPanel;
+        private RichTextBox richText;
         private Button JumpToTail2;
         private Button ClearLog2;
-        private RichTextBox richText;
     }
 }

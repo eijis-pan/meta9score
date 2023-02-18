@@ -9,6 +9,7 @@ namespace meta9score
     public class BilliardsModuleEventLoggerEventArgs : EventArgs
     {
         public string text;
+        public int? intValue;
         public string[]? players;
         public PoolState? poolState;
         public string? player;
@@ -17,6 +18,12 @@ namespace meta9score
         public BilliardsModuleEventLoggerEventArgs(string text)
         {
             this.text = text;
+        }
+
+        public BilliardsModuleEventLoggerEventArgs(string text, int? intValue)
+        {
+            this.text = text;
+            this.intValue = intValue;
         }
 
         public BilliardsModuleEventLoggerEventArgs(string text, PoolState poolState)
