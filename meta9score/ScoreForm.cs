@@ -24,7 +24,7 @@ namespace meta9score
 
         private int goalPoint = 120;
         private bool teamMemberFixed = false;
-        //private bool gameModeFixed = false;
+        private bool gameModeFixed = false;
         private string? lastShotPlayer = null; 
 
         public ScoreForm()
@@ -116,7 +116,7 @@ namespace meta9score
         private void init()
         {
             teamMemberFixed = false;
-            //gameModeFixed = false;
+            gameModeFixed = false;
             lastShotPlayer = null;
             playersReset();
             comboBoxGoalPointList.SelectedIndex = 0;
@@ -187,15 +187,22 @@ namespace meta9score
 
             System.Diagnostics.Debug.WriteLine(poolState.dump());
 
+            if (!gameModeFixed)
+            {
+                gameModeFixed = true;
+                changeGameMode(poolState.gameModeSynced);
+            }
+
+            // shot前の状態通知は処理する必要はない
             if (1 == poolState.turnStateSynced)
             {
                 return;
             }
 
+            // shot結果の状態でポケット判定する
             var ballProcketedFlags = PoolState.ballProcketedFlags(poolState.ballsPocketedSynced);
-            var foul = poolState.turnStateSynced == 2;
+            var foul = (poolState.turnStateSynced == 2);
             updatePocketed(ballProcketedFlags, foul);
-            //checkGameMode(ballProcketedFlags);
         }
 
         private void BilliardsModuleEventLogger_OnGameResetReceived(object? sender, EventArgs args)
@@ -217,14 +224,7 @@ namespace meta9score
                 return;
             }
 
-            if (billiardsModuleEventArgs.intValue == 0)
-            {
-                changeTo8ballMode();
-            }
-            else if (billiardsModuleEventArgs.intValue == 1)
-            {
-                changeTo9ballMode();
-            }
+            changeGameMode((int)billiardsModuleEventArgs.intValue);
         }
 
 
@@ -272,6 +272,7 @@ namespace meta9score
                 return;
             }
 
+            gameModeFixed = true;
             teamMemberFixed = true;
             foreach (var labelPlayer in labelPlayers)
             {
@@ -388,6 +389,19 @@ namespace meta9score
                 labelBall.Tag = "0";
                 labelBall.Visible = false;
             }
+        }
+
+        private void changeGameMode(int gameMode)
+        {
+            if (gameMode == 0)
+            {
+                changeTo8ballMode();
+            }
+            else if (gameMode == 1)
+            {
+                changeTo9ballMode();
+            }
+
         }
 
         private void rollbackCurrentGame()
