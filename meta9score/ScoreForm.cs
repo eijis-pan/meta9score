@@ -13,6 +13,7 @@ namespace meta9score
         private Label[] labelPlayers;
         private Label[] labelSinglePlayers;
         private Label[][] labelTeamPlayers;
+        private Color[] colorTeams;
 
         private Label[] labelCurrentScores;
         private Label[] labelTotalScores;
@@ -23,7 +24,7 @@ namespace meta9score
 
         private int goalPoint = 120;
         private bool teamMemberFixed = false;
-        private bool gameModeFixed = false;
+        //private bool gameModeFixed = false;
         private string? lastShotPlayer = null; 
 
         public ScoreForm()
@@ -42,18 +43,24 @@ namespace meta9score
 
             labelPlayers = new Label[]
             {
-                labelPlayer1, labelPlayer2, labelPlayer3, labelPlayer4
+                labelPlayer1, labelPlayer2, 
+                labelPlayer3, labelPlayer4
             };
 
             labelSinglePlayers = new Label[]
             {
-                labelPlayer1, labelPlayer3
+                labelPlayer1, labelPlayer2
             };
 
             labelTeamPlayers = new Label[][]
             {
-                new Label[]{ labelPlayer1, labelPlayer2 }, 
-                new Label[]{ labelPlayer3, labelPlayer4 }
+                new Label[]{ labelPlayer1, labelPlayer3 }, 
+                new Label[]{ labelPlayer2, labelPlayer4 }
+            };
+
+            colorTeams = new Color[]
+            {
+                labelPlayer1.BackColor, labelPlayer2.BackColor
             };
 
             labelCurrentScores = new Label[]
@@ -88,14 +95,17 @@ namespace meta9score
 
             billiardsModuleEventLogger = new BilliardsModuleEventLogger();
             //billiardsModuleEventLogger.OnLogReceived += BilliardsModuleEventLogger_OnLogReceived;
-            billiardsModuleEventLogger.OnStartingGameReceived += BilliardsModuleEventLogger_OnStartingGameReceived;
+            billiardsModuleEventLogger.OnStartingGameReceived += BilliardsModuleEventLogger_OnRemoteGameStarted;
             billiardsModuleEventLogger.OnGameStateReceived += BilliardsModuleEventLogger_OnGameStateReceived;
             billiardsModuleEventLogger.OnGameResetReceived += BilliardsModuleEventLogger_OnGameResetReceived;
             billiardsModuleEventLogger.OnRemoteLobbyOpened += BilliardsModuleEventLogger_OnRemoteLobbyOpened;
+            billiardsModuleEventLogger.OnRemoteGameSettingsUpdated += BilliardsModuleEventLogger_OnRemoteGameSettingsUpdated;
             billiardsModuleEventLogger.OnRemotePlayersChanged += BilliardsModuleEventLogger_OnRemotePlayersChanged;
+            billiardsModuleEventLogger.OnRemoteGameStarted += BilliardsModuleEventLogger_OnRemoteGameStarted;
             billiardsModuleEventLogger.OnRemoteTurnSimulate += BilliardsModuleEventLogger_OnRemoteTurnSimulate;
+            //billiardsModuleEventLogger.OnRemoteRepositionStateChanged += BilliardsModuleEventLogger_OnRemoteRepositionStateChanged;
             //billiardsModuleEventLogger.OnRemoteBallsPocketedChanged += BilliardsModuleEventLogger_OnRemoteBallsPocketedChanged;
-            billiardsModuleEventLogger.OnRemoteGameEnded += BilliardsModuleEventLogger_OnRemoteGameEnded;
+            //billiardsModuleEventLogger.OnRemoteGameEnded += BilliardsModuleEventLogger_OnRemoteGameEnded;
         }
 
         private void FormScore_Load(object sender, EventArgs e)
@@ -106,7 +116,7 @@ namespace meta9score
         private void init()
         {
             teamMemberFixed = false;
-            gameModeFixed = false;
+            //gameModeFixed = false;
             lastShotPlayer = null;
             playersReset();
             comboBoxGoalPointList.SelectedIndex = 0;
@@ -124,6 +134,15 @@ namespace meta9score
             {
                 labelPlayer.Visible = true;
                 labelPlayer.Text = " ";
+            }
+            for (int i = 0; i < labelTeamPlayers.Length && i < colorTeams.Length; i++)
+            {
+                var teamPlayers = labelTeamPlayers[i];
+                var color = colorTeams[i];
+                foreach (var labelPlayer in teamPlayers)
+                {
+                    labelPlayer.BackColor = color;
+                }
             }
         }
 
@@ -156,17 +175,6 @@ namespace meta9score
         }
         */
 
-        private void BilliardsModuleEventLogger_OnStartingGameReceived(object? sender, EventArgs args)
-        {
-            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
-            if (null == billiardsModuleEventArgs)
-            {
-                return;
-            }
-
-            gameModeFixed = false;
-        }
-
         private void BilliardsModuleEventLogger_OnGameStateReceived(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
@@ -175,9 +183,19 @@ namespace meta9score
                 return;
             }
 
-            var ballProcketedFlags = PoolState.ballProcketedFlags(billiardsModuleEventArgs.poolState.ballsPocketedSynced);
-            updatePocketed(ballProcketedFlags);
-            checkGameMode(ballProcketedFlags);
+            var poolState = billiardsModuleEventArgs.poolState;
+
+            System.Diagnostics.Debug.WriteLine(poolState.dump());
+
+            if (1 == poolState.turnStateSynced)
+            {
+                return;
+            }
+
+            var ballProcketedFlags = PoolState.ballProcketedFlags(poolState.ballsPocketedSynced);
+            var foul = poolState.turnStateSynced == 2;
+            updatePocketed(ballProcketedFlags, foul);
+            //checkGameMode(ballProcketedFlags);
         }
 
         private void BilliardsModuleEventLogger_OnGameResetReceived(object? sender, EventArgs args)
@@ -190,6 +208,25 @@ namespace meta9score
 
             rollbackCurrentGame();
         }
+
+        private void BilliardsModuleEventLogger_OnRemoteGameSettingsUpdated(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue /*|| null == billiardsModuleEventArgs.intValue2 */)
+            {
+                return;
+            }
+
+            if (billiardsModuleEventArgs.intValue == 0)
+            {
+                changeTo8ballMode();
+            }
+            else if (billiardsModuleEventArgs.intValue == 1)
+            {
+                changeTo9ballMode();
+            }
+        }
+
 
         private void BilliardsModuleEventLogger_OnRemoteLobbyOpened(object? sender, EventArgs args)
         {
@@ -210,15 +247,58 @@ namespace meta9score
                 return;
             }
 
+            if (teamMemberFixed)
+            {
+                return;
+            }
+                
             for (int i = 0; i < labelPlayers.Length && i < billiardsModuleEventArgs.players.Length; i++)
             {
                 var player = billiardsModuleEventArgs.players[i];
                 if (!string.IsNullOrEmpty(player))
                 {
-                    labelPlayers[i].Text = player;
+                    var labelPlayer = labelPlayers[i];
+                    labelPlayer.Text = player;
+                    labelPlayer.Visible = true;
                 }
             }
         }
+
+        private void BilliardsModuleEventLogger_OnRemoteGameStarted(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs)
+            {
+                return;
+            }
+
+            teamMemberFixed = true;
+            foreach (var labelPlayer in labelPlayers)
+            {
+                labelPlayer.BackColor = Color.FromKnownColor(KnownColor.Control);
+                if (labelPlayer.Text == " ")
+                {
+                    labelPlayer.Visible = false;
+                }
+            }
+        }
+
+        /*
+        private void BilliardsModuleEventLogger_OnRemoteRepositionStateChanged(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue)
+            {
+                return;
+            }
+
+            var repositionState = billiardsModuleEventArgs.intValue;
+            if (2 == repositionState)
+            {
+                System.Diagnostics.Debug.WriteLine("free ball !!!");
+            }
+        }
+        */
 
         private void BilliardsModuleEventLogger_OnRemoteTurnSimulate(object? sender, EventArgs args)
         {
@@ -231,6 +311,7 @@ namespace meta9score
             lastShotPlayer = billiardsModuleEventArgs.player;
         }
 
+        /*
         private void BilliardsModuleEventLogger_OnRemoteBallsPocketedChanged(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
@@ -239,9 +320,12 @@ namespace meta9score
                 return;
             }
 
-            updatePocketed(billiardsModuleEventArgs.ballProcketedFlags);
+            System.Diagnostics.Debug.WriteLine("OnRemoteBallsPocketedChanged {0}", billiardsModuleEventArgs.ballProcketedFlags);
+            //updatePocketed(billiardsModuleEventArgs.ballProcketedFlags);
         }
+        */
 
+        /*
         private void BilliardsModuleEventLogger_OnRemoteGameEnded(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
@@ -252,7 +336,9 @@ namespace meta9score
 
             // resetSubTotal();
         }
+        */
 
+        /*
         private void checkGameMode(bool[] ballProcketedFlags)
         {
             if (gameModeFixed)
@@ -281,6 +367,7 @@ namespace meta9score
 
             gameModeFixed = true;
         }
+        */
 
         private void changeTo8ballMode()
         {
@@ -326,7 +413,7 @@ namespace meta9score
             }
         }
 
-        private void updatePocketed(bool[] ballProcketedFlags)
+        private void updatePocketed(bool[] ballProcketedFlags, bool foul)
         {
             var teamIndex = indexOfLastShotTeamByPlayer(lastShotPlayer);
             if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
@@ -345,11 +432,18 @@ namespace meta9score
                             var moveToParent = flowLayoutPocketedUnknown;
                             if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
                             {
-                                if (null != labelBall.Tag)
+                                if (foul)
                                 {
-                                    scoreCountUp(teamIndex, int.Parse(labelBall.Tag.ToString()));
+                                    moveToParent = flowLayoutNocountTeams[teamIndex];
                                 }
-                                moveToParent = flowLayoutPocketedTeams[teamIndex];
+                                else
+                                {
+                                    moveToParent = flowLayoutPocketedTeams[teamIndex];
+                                    if (null != labelBall.Tag)
+                                    {
+                                        scoreCountUp(teamIndex, int.Parse(labelBall.Tag.ToString()));
+                                    }
+                                }
                             }
                             labelBall.Parent = moveToParent;
                         }
@@ -409,6 +503,16 @@ namespace meta9score
         private void menuItemConfig_Click(object sender, EventArgs e)
         {
             configDialog.ShowDialog();
+        }
+
+        private void scoreClearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            init();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

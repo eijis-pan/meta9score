@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Windows.Forms;
 
 namespace meta9score
 {
@@ -14,6 +15,7 @@ namespace meta9score
 
         public event EventHandler? OnLogReceived;
 
+        // local only
         private const string STR_startingGame = "starting game";
         public event EventHandler? OnStartingGameReceived;
 
@@ -26,14 +28,24 @@ namespace meta9score
         private const string STR_onRemoteLobbyOpened = "onRemoteLobbyOpened";
         public event EventHandler? OnRemoteLobbyOpened;
 
+        private const string STR_onRemoteGameSettingsUpdated = "onRemoteGameSettingsUpdated";
+        public event EventHandler? OnRemoteGameSettingsUpdated;
+
         private const string STR_onRemotePlayersChanged = "onRemotePlayersChanged";
         public event EventHandler? OnRemotePlayersChanged;
+
+        // remote only
+        private const string STR_onRemoteGameStarted = "onRemoteGameStarted";
+        public event EventHandler? OnRemoteGameStarted;
 
         private const string STR_onRemoteTurnSimulate = "onRemoteTurnSimulate";
         public event EventHandler? OnRemoteTurnSimulate;
 
         private const string STR_onRemoteBallsPocketedChanged = "onRemoteBallsPocketedChanged";
         public event EventHandler? OnRemoteBallsPocketedChanged;
+
+        private const string STR_onRemoteRepositionStateChanged = "onRemoteRepositionStateChanged";
+        public event EventHandler? OnRemoteRepositionStateChanged;
 
         private const string STR_onRemoteGameEnded = "onRemoteGameEndedd";
         public event EventHandler? OnRemoteGameEnded;
@@ -49,11 +61,14 @@ namespace meta9score
 
             parseMethods = new ParseMethod[] {
                 parse_gameState,
-                parse_onRemotePlayersChanged,
                 parse_onRemoteTurnSimulate,
+                parse_onRemoteRepositionStateChanged,
+                parse_onRemoteGameSettingsUpdated,
+                parse_onRemotePlayersChanged,
                 parse_onRemoteBallsPocketedChanged,
                 parse_onRemoteLobbyOpened,
                 parse_startingGame,
+                parse_OnRemoteGameStarted,
                 parse_onRemoteGameEnded,
                 parse_gameReset
             };
@@ -84,7 +99,8 @@ namespace meta9score
         }
 
         private void BilliardsModuleEventLogger_Load(object sender, EventArgs e)
-        {            
+        {
+
         }
 
         private void ClearLog_Click(object sender, EventArgs e)
@@ -357,6 +373,7 @@ namespace meta9score
             }
         }
 
+        // local only
         private bool parse_startingGame(string logText, int appendStartPos)
         {
             var posOfKeyword = logText.IndexOf(STR_startingGame);
@@ -433,7 +450,7 @@ namespace meta9score
 
             return true;
         }
-        
+
         private bool parse_onRemoteLobbyOpened(string logText, int appendStartPos)
         {
             var posOfKeyword = logText.IndexOf(STR_onRemoteLobbyOpened);
@@ -449,6 +466,62 @@ namespace meta9score
             if (null != OnRemoteLobbyOpened)
             {
                 OnRemoteLobbyOpened(this, new BilliardsModuleEventLoggerEventArgs(logText));
+            }
+
+            return true;
+        }
+
+
+        private bool parse_onRemoteGameSettingsUpdated(string logText, int appendStartPos)
+        {
+            var posOfKeyword = logText.IndexOf(STR_onRemoteGameSettingsUpdated);
+            if (posOfKeyword < 0)
+            {
+                return false;
+            }
+
+            richText.SelectionStart = appendStartPos + posOfKeyword;
+            richText.SelectionLength = STR_onRemoteGameSettingsUpdated.Length;
+            richText.SelectionColor = Color.Gainsboro;
+
+            // onRemoteGameSettingsUpdated gameMode=1 timer=0 teams=False guideline=True locking=True
+            var keywords = new string[] { "gameMode", "teams" };
+            var intValueDict = new Dictionary<string, int>();
+
+            var paramOf_onRemoteGameSettingsUpdated = logText.Substring(posOfKeyword + STR_onRemoteGameSettingsUpdated.Length);
+            var partOf_onRemoteGameSettingsUpdated = paramOf_onRemoteGameSettingsUpdated.Split(' ', 5, StringSplitOptions.RemoveEmptyEntries);
+            foreach(var keyword in keywords)
+            {
+                foreach (var param in partOf_onRemoteGameSettingsUpdated)
+                {
+                    var pair = param.Split('=', 2, StringSplitOptions.TrimEntries);
+                    if (null != pair && 1 < pair.Length && pair[0] == keyword)
+                    {
+                        richText.SelectionStart = appendStartPos + posOfKeyword + STR_onRemoteGameSettingsUpdated.Length + paramOf_onRemoteGameSettingsUpdated.IndexOf(keyword);
+                        richText.SelectionLength = param.Length;
+                        richText.SelectionColor = Color.Gainsboro;
+
+                        int intValue = int.MinValue;
+                        if (!int.TryParse(pair[1], out intValue))
+                        {
+                            if (bool.TryParse(pair[1], out var boolValue))
+                            {
+                                intValue = boolValue ? 1 : 0;
+                            }
+                        }
+                        if (intValue != int.MinValue)
+                        {
+                            intValueDict.Add(keyword, intValue);
+                        }
+                        break;
+                    }
+                }
+
+            }
+
+            if (null != OnRemoteGameSettingsUpdated)
+            {
+                OnRemoteGameSettingsUpdated(this, new BilliardsModuleEventLoggerEventArgs(logText, intValueDict["gameMode"] /*, intValueDict["teams"]*/));
             }
 
             return true;
@@ -500,6 +573,27 @@ namespace meta9score
             return true;
         }
 
+        // remote only
+        private bool parse_OnRemoteGameStarted(string logText, int appendStartPos)
+        {
+            var posOfKeyword = logText.IndexOf(STR_onRemoteGameStarted);
+            if (posOfKeyword < 0)
+            {
+                return false;
+            }
+
+            richText.SelectionStart = appendStartPos + posOfKeyword;
+            richText.SelectionLength = STR_onRemoteGameStarted.Length;
+            richText.SelectionColor = Color.IndianRed;
+
+            if (null != OnRemoteGameStarted)
+            {
+                OnRemoteGameStarted(this, new BilliardsModuleEventLoggerEventArgs(logText));
+            }
+
+            return true;
+        }
+
         private bool parse_onRemoteTurnSimulate(string logText, int appendStartPos)
         {
             var posOfKeyword = logText.IndexOf(STR_onRemoteTurnSimulate);
@@ -532,6 +626,38 @@ namespace meta9score
             return true;
         }
 
+        private bool parse_onRemoteRepositionStateChanged(string logText, int appendStartPos)
+        {
+            var posOfKeyword = logText.IndexOf(STR_onRemoteRepositionStateChanged);
+            if (posOfKeyword < 0)
+            {
+                return false;
+            }
+
+            richText.SelectionStart = posOfKeyword;
+            richText.SelectionLength = STR_onRemoteRepositionStateChanged.Length;
+            richText.SelectionColor = Color.Honeydew;
+
+            // onRemoteRepositionStateChanged repositionState=1
+            int? repositionState = null;
+
+            var partOf_onRemoteRepositionStateChanged = logText.Split("=", 2);
+            if (null != partOf_onRemoteRepositionStateChanged && 1 < partOf_onRemoteRepositionStateChanged.Length)
+            {
+                richText.SelectionStart = appendStartPos + partOf_onRemoteRepositionStateChanged[0].Length + "=".Length;
+                richText.SelectionLength = partOf_onRemoteRepositionStateChanged[1].Length;
+                richText.SelectionColor = Color.Honeydew;
+
+                repositionState = int.Parse(partOf_onRemoteRepositionStateChanged[1]);
+            }
+
+            if (null != OnRemoteRepositionStateChanged)
+            {
+                OnRemoteRepositionStateChanged(this, new BilliardsModuleEventLoggerEventArgs(logText, repositionState));
+            }
+
+            return true;
+        }
 
         private bool parse_onRemoteBallsPocketedChanged(string logText, int appendStartPos)
         {
@@ -557,6 +683,8 @@ namespace meta9score
                 var hex4Char = partOf_onRemoteBallsPocketedChanged[1].PadLeft(4, '0');
                 var ballsPocketdValue = Convert.ToUInt16(hex4Char, 16);
                 ballProcketedFlags = PoolState.ballProcketedFlags(ballsPocketdValue);
+
+                System.Diagnostics.Debug.WriteLine("OnRemoteBallsPocketedChanged {0}", Convert.ToString(ballsPocketdValue, 2).PadLeft(16, '0'));
             }
 
             if (null != OnRemoteBallsPocketedChanged)
@@ -605,6 +733,17 @@ namespace meta9score
         {
             e.Cancel = true;
             this.Hide();
+        }
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab == BilliardsLog)
+            {
+                // RichTextBoxの表示が更新されないことがある問題の対処
+                richText.SelectionStart = 0;
+                richText.SelectionStart = richText.Text.Length;
+                richText.ScrollToCaret();
+            }
         }
     }
 }

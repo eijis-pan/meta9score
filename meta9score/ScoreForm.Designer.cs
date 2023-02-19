@@ -31,18 +31,16 @@
             this.tableLayoutPlayers = new System.Windows.Forms.TableLayoutPanel();
             this.groupBoxTeam2 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanelTeam2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.labelPlayer3 = new System.Windows.Forms.Label();
-            this.labelPlayer4 = new System.Windows.Forms.Label();
             this.groupBoxTeam1 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanelTeam1 = new System.Windows.Forms.FlowLayoutPanel();
             this.labelPlayer1 = new System.Windows.Forms.Label();
-            this.labelPlayer2 = new System.Windows.Forms.Label();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.menuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scoreClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItemConfig = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItemLog = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutScores = new System.Windows.Forms.TableLayoutPanel();
             this.labelRemainPointTeam1 = new System.Windows.Forms.Label();
             this.labelRemainPointHeader = new System.Windows.Forms.Label();
@@ -77,6 +75,9 @@
             this.flowLayoutPocketedTeam2 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutNocountTeam1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutNocountTeam2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelPlayer3 = new System.Windows.Forms.Label();
+            this.labelPlayer2 = new System.Windows.Forms.Label();
+            this.labelPlayer4 = new System.Windows.Forms.Label();
             this.tableLayoutPlayers.SuspendLayout();
             this.groupBoxTeam2.SuspendLayout();
             this.flowLayoutPanelTeam2.SuspendLayout();
@@ -118,35 +119,13 @@
             // 
             // flowLayoutPanelTeam2
             // 
-            this.flowLayoutPanelTeam2.Controls.Add(this.labelPlayer3);
+            this.flowLayoutPanelTeam2.Controls.Add(this.labelPlayer2);
             this.flowLayoutPanelTeam2.Controls.Add(this.labelPlayer4);
             this.flowLayoutPanelTeam2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanelTeam2.Location = new System.Drawing.Point(3, 51);
             this.flowLayoutPanelTeam2.Name = "flowLayoutPanelTeam2";
             this.flowLayoutPanelTeam2.Size = new System.Drawing.Size(647, 95);
             this.flowLayoutPanelTeam2.TabIndex = 1;
-            // 
-            // labelPlayer3
-            // 
-            this.labelPlayer3.AutoSize = true;
-            this.labelPlayer3.BackColor = System.Drawing.Color.LightSkyBlue;
-            this.labelPlayer3.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer3.Location = new System.Drawing.Point(3, 0);
-            this.labelPlayer3.Name = "labelPlayer3";
-            this.labelPlayer3.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer3.TabIndex = 2;
-            this.labelPlayer3.Text = "player3";
-            // 
-            // labelPlayer4
-            // 
-            this.labelPlayer4.AutoSize = true;
-            this.labelPlayer4.BackColor = System.Drawing.Color.LightSkyBlue;
-            this.labelPlayer4.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer4.Location = new System.Drawing.Point(192, 0);
-            this.labelPlayer4.Name = "labelPlayer4";
-            this.labelPlayer4.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer4.TabIndex = 3;
-            this.labelPlayer4.Text = "player4";
             // 
             // groupBoxTeam1
             // 
@@ -163,7 +142,7 @@
             // flowLayoutPanelTeam1
             // 
             this.flowLayoutPanelTeam1.Controls.Add(this.labelPlayer1);
-            this.flowLayoutPanelTeam1.Controls.Add(this.labelPlayer2);
+            this.flowLayoutPanelTeam1.Controls.Add(this.labelPlayer3);
             this.flowLayoutPanelTeam1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanelTeam1.Location = new System.Drawing.Point(3, 51);
             this.flowLayoutPanelTeam1.Name = "flowLayoutPanelTeam1";
@@ -173,24 +152,13 @@
             // labelPlayer1
             // 
             this.labelPlayer1.AutoSize = true;
-            this.labelPlayer1.BackColor = System.Drawing.Color.Bisque;
+            this.labelPlayer1.BackColor = System.Drawing.Color.DarkOrange;
             this.labelPlayer1.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.labelPlayer1.Location = new System.Drawing.Point(3, 0);
             this.labelPlayer1.Name = "labelPlayer1";
             this.labelPlayer1.Size = new System.Drawing.Size(183, 65);
             this.labelPlayer1.TabIndex = 0;
             this.labelPlayer1.Text = "player1";
-            // 
-            // labelPlayer2
-            // 
-            this.labelPlayer2.AutoSize = true;
-            this.labelPlayer2.BackColor = System.Drawing.Color.Bisque;
-            this.labelPlayer2.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer2.Location = new System.Drawing.Point(192, 0);
-            this.labelPlayer2.Name = "labelPlayer2";
-            this.labelPlayer2.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer2.TabIndex = 1;
-            this.labelPlayer2.Text = "player2";
             // 
             // menuStrip
             // 
@@ -209,7 +177,8 @@
             this.scoreClearToolStripMenuItem,
             this.menuItemConfig,
             this.menuItemLog,
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.menuToolStripMenuItem.Name = "menuToolStripMenuItem";
             this.menuToolStripMenuItem.Size = new System.Drawing.Size(73, 29);
             this.menuToolStripMenuItem.Text = "Menu";
@@ -217,28 +186,36 @@
             // scoreClearToolStripMenuItem
             // 
             this.scoreClearToolStripMenuItem.Name = "scoreClearToolStripMenuItem";
-            this.scoreClearToolStripMenuItem.Size = new System.Drawing.Size(201, 34);
+            this.scoreClearToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.scoreClearToolStripMenuItem.Text = "Score reset";
+            this.scoreClearToolStripMenuItem.Click += new System.EventHandler(this.scoreClearToolStripMenuItem_Click);
             // 
             // menuItemConfig
             // 
             this.menuItemConfig.Name = "menuItemConfig";
-            this.menuItemConfig.Size = new System.Drawing.Size(201, 34);
+            this.menuItemConfig.Size = new System.Drawing.Size(270, 34);
             this.menuItemConfig.Text = "Settings";
             this.menuItemConfig.Click += new System.EventHandler(this.menuItemConfig_Click);
             // 
             // menuItemLog
             // 
             this.menuItemLog.Name = "menuItemLog";
-            this.menuItemLog.Size = new System.Drawing.Size(201, 34);
+            this.menuItemLog.Size = new System.Drawing.Size(270, 34);
             this.menuItemLog.Text = "Log";
             this.menuItemLog.Click += new System.EventHandler(this.menuItemLog_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(201, 34);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.aboutToolStripMenuItem.Text = "About";
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // tableLayoutScores
             // 
@@ -706,6 +683,39 @@
             this.flowLayoutNocountTeam2.Size = new System.Drawing.Size(433, 76);
             this.flowLayoutNocountTeam2.TabIndex = 7;
             // 
+            // labelPlayer3
+            // 
+            this.labelPlayer3.AutoSize = true;
+            this.labelPlayer3.BackColor = System.Drawing.Color.DarkOrange;
+            this.labelPlayer3.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer3.Location = new System.Drawing.Point(192, 0);
+            this.labelPlayer3.Name = "labelPlayer3";
+            this.labelPlayer3.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer3.TabIndex = 3;
+            this.labelPlayer3.Text = "player3";
+            // 
+            // labelPlayer2
+            // 
+            this.labelPlayer2.AutoSize = true;
+            this.labelPlayer2.BackColor = System.Drawing.Color.DodgerBlue;
+            this.labelPlayer2.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer2.Location = new System.Drawing.Point(3, 0);
+            this.labelPlayer2.Name = "labelPlayer2";
+            this.labelPlayer2.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer2.TabIndex = 4;
+            this.labelPlayer2.Text = "player2";
+            // 
+            // labelPlayer4
+            // 
+            this.labelPlayer4.AutoSize = true;
+            this.labelPlayer4.BackColor = System.Drawing.Color.DodgerBlue;
+            this.labelPlayer4.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer4.Location = new System.Drawing.Point(192, 0);
+            this.labelPlayer4.Name = "labelPlayer4";
+            this.labelPlayer4.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer4.TabIndex = 5;
+            this.labelPlayer4.Text = "player4";
+            // 
             // ScoreForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
@@ -794,5 +804,6 @@
         private FlowLayoutPanel flowLayoutPocketedTeam2;
         private FlowLayoutPanel flowLayoutNocountTeam1;
         private FlowLayoutPanel flowLayoutNocountTeam2;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }

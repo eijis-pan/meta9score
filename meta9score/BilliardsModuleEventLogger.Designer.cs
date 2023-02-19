@@ -82,6 +82,7 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(851, 397);
             this.tabControl.TabIndex = 1;
+            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             // 
             // AllVrcLog
             // 
@@ -141,6 +142,7 @@
             this.JumpToTail2.TabIndex = 11;
             this.JumpToTail2.Text = "JumpToTail";
             this.JumpToTail2.UseVisualStyleBackColor = true;
+            this.JumpToTail2.Click += new System.EventHandler(this.JumpToTail2_Click);
             // 
             // ClearLog2
             // 
@@ -152,6 +154,7 @@
             this.ClearLog2.TabIndex = 10;
             this.ClearLog2.Text = "ClearLog";
             this.ClearLog2.UseVisualStyleBackColor = true;
+            this.ClearLog2.Click += new System.EventHandler(this.ClearLog2_Click);
             // 
             // BilliardLogPanel
             // 

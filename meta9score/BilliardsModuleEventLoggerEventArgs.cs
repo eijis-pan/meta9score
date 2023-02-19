@@ -10,6 +10,7 @@ namespace meta9score
     {
         public string text;
         public int? intValue;
+        //public int? intValue2;
         public string[]? players;
         public PoolState? poolState;
         public string? player;
@@ -25,6 +26,13 @@ namespace meta9score
             this.text = text;
             this.intValue = intValue;
         }
+
+        //public BilliardsModuleEventLoggerEventArgs(string text, int? intValue, int? intValue2)
+        //{
+        //    this.text = text;
+        //    this.intValue = intValue;
+        //    this.intValue2 = intValue2;
+        //}
 
         public BilliardsModuleEventLoggerEventArgs(string text, PoolState poolState)
         {

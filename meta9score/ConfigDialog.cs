@@ -22,5 +22,9 @@ namespace meta9score
 
         }
 
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
