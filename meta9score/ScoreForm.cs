@@ -30,6 +30,7 @@ namespace meta9score
         private string? lastShotPlayer = null;
         private int packetNumber = 0;
         private int stateNumber = 0;
+        private PoolState? gameEndState = null;
 
         public ScoreForm()
         {
@@ -110,7 +111,7 @@ namespace meta9score
             billiardsModuleEventLogger.OnRemoteTurnSimulate += BilliardsModuleEventLogger_OnRemoteTurnSimulate;
             //billiardsModuleEventLogger.OnRemoteRepositionStateChanged += BilliardsModuleEventLogger_OnRemoteRepositionStateChanged;
             //billiardsModuleEventLogger.OnRemoteBallsPocketedChanged += BilliardsModuleEventLogger_OnRemoteBallsPocketedChanged;
-            //billiardsModuleEventLogger.OnRemoteGameEnded += BilliardsModuleEventLogger_OnRemoteGameEnded;
+            billiardsModuleEventLogger.OnRemoteGameEnded += BilliardsModuleEventLogger_OnRemoteGameEnded;
         }
 
         private void FormScore_Load(object sender, EventArgs e)
@@ -192,7 +193,8 @@ namespace meta9score
 
             System.Diagnostics.Debug.WriteLine("packet={0}, state={1}", billiardsModuleEventArgs.intValue, billiardsModuleEventArgs.intValue2);
 
-            if (stateNumber == billiardsModuleEventArgs.intValue2)
+            // state が更新されなくなったら Game End 判定
+            if (0 < stateNumber && stateNumber == billiardsModuleEventArgs.intValue2)
             {
                 gameEnded = true;
             }
@@ -219,8 +221,13 @@ namespace meta9score
                 changeGameMode(poolState.gameModeSynced);
             }
 
+            if (gameEnded)
+            {
+                gameEndState = poolState;
+            }
+
             // shot前の状態通知は処理する必要はない
-            if (1 == poolState.turnStateSynced && !gameEnded)
+            if (1 == poolState.turnStateSynced)
             {
                 return;
             }
@@ -353,7 +360,6 @@ namespace meta9score
         }
         */
 
-        /*
         private void BilliardsModuleEventLogger_OnRemoteGameEnded(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
@@ -363,9 +369,23 @@ namespace meta9score
             }
 
             // resetSubTotal();
-            gameEnded = true;
+            //gameEnded = true;
+
+            // 勝った側
+            var winnerTeamIndex = billiardsModuleEventArgs.intValue;
+
+            // 最後に突いた側
+            var teamIndex = indexOfLastShotTeamByPlayer(lastShotPlayer);
+            if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
+            {
+                lastShotPlayer = null;
+            }
+
+            // Game End の状態でポケット判定する
+            var ballProcketedFlags = PoolState.ballProcketedFlags(gameEndState.ballsPocketedSynced);
+            var foul = (winnerTeamIndex != teamIndex);
+            updatePocketed(ballProcketedFlags, foul);
         }
-        */
 
         /*
         private void checkGameMode(bool[] ballProcketedFlags)
