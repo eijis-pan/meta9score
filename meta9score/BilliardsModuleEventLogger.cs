@@ -19,6 +19,9 @@ namespace meta9score
         private const string STR_startingGame = "starting game";
         public event EventHandler? OnStartingGameReceived;
 
+        private const string STR_remoteState = "processing latest remote state (";
+        public event EventHandler? OnRemoteStateReceived;
+
         private const string STR_gameState = "game state is";
         public event EventHandler? OnGameStateReceived;
 
@@ -47,7 +50,7 @@ namespace meta9score
         private const string STR_onRemoteRepositionStateChanged = "onRemoteRepositionStateChanged";
         public event EventHandler? OnRemoteRepositionStateChanged;
 
-        private const string STR_onRemoteGameEnded = "onRemoteGameEndedd";
+        private const string STR_onRemoteGameEnded = "onRemoteGameEnded";
         public event EventHandler? OnRemoteGameEnded;
 
         string? targetFileName = null;
@@ -60,6 +63,7 @@ namespace meta9score
             InitializeComponent();
 
             parseMethods = new ParseMethod[] {
+                parse_remoteState,
                 parse_gameState,
                 parse_onRemoteTurnSimulate,
                 parse_onRemoteRepositionStateChanged,
@@ -78,7 +82,7 @@ namespace meta9score
             fileSystemWatcher.IncludeSubdirectories = false;
             fileSystemWatcher.EnableRaisingEvents = false;
 
-            statusStrip.Text = "Scan newer file in dir ...";
+            toolStripStatusLabel.Text = "Scan newer file in dir ...";
             var fileInfo = scanNewFile(fileSystemWatcher.Path, fileSystemWatcher.Filter);
             if (null == fileInfo)
             {
@@ -91,7 +95,7 @@ namespace meta9score
                 lastReadPosition = fileInfo.Length;
             }
 
-            statusStrip.Text = "Wait for logs ...";
+            toolStripStatusLabel.Text = "Wait for logs ...";
             backgroundWorker.WorkerReportsProgress = true;
             backgroundWorker.RunWorkerAsync();
 
@@ -258,7 +262,7 @@ namespace meta9score
 
             if (e.ProgressPercentage == 0)
             {
-                statusStrip.Text = e.UserState.ToString();
+                toolStripStatusLabel.Text = e.UserState.ToString();
                 return;
             }
 
@@ -267,7 +271,7 @@ namespace meta9score
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            statusStrip.Text = "Wait for logs ...";
+            toolStripStatusLabel.Text = "Wait for logs ...";
             backgroundWorker.RunWorkerAsync();
         }
 
@@ -313,10 +317,10 @@ namespace meta9score
 
             planeText.AppendText(logText);
 
-            if (2000 < planeText.Lines.Length)
+            if (20000 < planeText.Lines.Length)
             {
-                var newLines = new string[1000];
-                Array.Copy(planeText.Lines, 1000, newLines, 0, newLines.Length);
+                var newLines = new string[10000];
+                Array.Copy(planeText.Lines, 10000, newLines, 0, newLines.Length);
                 planeText.Lines = newLines;
 
                 System.Diagnostics.Debug.WriteLine("planeTextは切り詰められました。");
@@ -357,10 +361,10 @@ namespace meta9score
                 }
             }
 
-            if (2000 < richText.Lines.Length)
+            if (20000 < richText.Lines.Length)
             {
-                var newLines = new string[1000];
-                Array.Copy(richText.Lines, 1000, newLines, 0, newLines.Length);
+                var newLines = new string[10000];
+                Array.Copy(richText.Lines, 10000, newLines, 0, newLines.Length);
                 richText.Lines = newLines;
 
                 System.Diagnostics.Debug.WriteLine("richTextは切り詰められました。");
@@ -389,6 +393,54 @@ namespace meta9score
             if (null != OnStartingGameReceived)
             {
                 OnStartingGameReceived(this, new BilliardsModuleEventLoggerEventArgs(logText));
+            }
+
+            return true;
+        }
+
+        private bool parse_remoteState(string logText, int appendStartPos)
+        {
+            var posOfKeyword = logText.IndexOf(STR_remoteState);
+            if (posOfKeyword < 0)
+            {
+                return false;
+            }
+
+            richText.SelectionStart = appendStartPos + posOfKeyword;
+            richText.SelectionLength = STR_remoteState.Length;
+            richText.SelectionColor = Color.Khaki;
+
+            // [BilliardsModule] processing latest remote state (packet=387, state=2)
+            var keywords = new string[] { "packet", "state" };
+            var intValueDict = new Dictionary<string, int>();
+
+            var paramOf_remoteState = logText.Substring(posOfKeyword + STR_remoteState.Length, logText.Length - (1 + posOfKeyword + STR_remoteState.Length));
+            var partOf_remoteState = paramOf_remoteState.Split(", ", 5, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var keyword in keywords)
+            {
+                foreach (var param in partOf_remoteState)
+                {
+                    var pair = param.Split('=', 2, StringSplitOptions.TrimEntries);
+                    if (null != pair && 1 < pair.Length && pair[0] == keyword)
+                    {
+                        richText.SelectionStart = appendStartPos + posOfKeyword + STR_remoteState.Length + paramOf_remoteState.IndexOf(keyword);
+                        richText.SelectionLength = param.Length;
+                        richText.SelectionColor = Color.Khaki;
+
+                        int intValue = int.MinValue;
+                        if (int.TryParse(pair[1], out intValue))
+                        {
+                            intValueDict.Add(keyword, intValue);
+                        }
+                        break;
+                    }
+                }
+
+            }
+
+            if (null != OnRemoteStateReceived)
+            {
+                OnRemoteStateReceived(this, new BilliardsModuleEventLoggerEventArgs(logText, intValueDict["packet"], intValueDict["state"]));
             }
 
             return true;
@@ -521,7 +573,7 @@ namespace meta9score
 
             if (null != OnRemoteGameSettingsUpdated)
             {
-                OnRemoteGameSettingsUpdated(this, new BilliardsModuleEventLoggerEventArgs(logText, intValueDict["gameMode"] /*, intValueDict["teams"]*/));
+                OnRemoteGameSettingsUpdated(this, new BilliardsModuleEventLoggerEventArgs(logText, intValueDict["gameMode"], intValueDict["teams"]));
             }
 
             return true;
@@ -602,7 +654,7 @@ namespace meta9score
                 return false;
             }
 
-            richText.SelectionStart = posOfKeyword;
+            richText.SelectionStart = appendStartPos + posOfKeyword;
             richText.SelectionLength = STR_onRemoteTurnSimulate.Length;
             richText.SelectionColor = Color.Aqua;
 
@@ -634,7 +686,7 @@ namespace meta9score
                 return false;
             }
 
-            richText.SelectionStart = posOfKeyword;
+            richText.SelectionStart = appendStartPos + posOfKeyword;
             richText.SelectionLength = STR_onRemoteRepositionStateChanged.Length;
             richText.SelectionColor = Color.Honeydew;
 
@@ -667,7 +719,7 @@ namespace meta9score
                 return false;
             }
 
-            richText.SelectionStart = posOfKeyword;
+            richText.SelectionStart = appendStartPos + posOfKeyword;
             richText.SelectionLength = STR_onRemoteBallsPocketedChanged.Length;
             richText.SelectionColor = Color.AntiqueWhite;
 
@@ -703,7 +755,7 @@ namespace meta9score
                 return false;
             }
 
-            richText.SelectionStart = posOfKeyword;
+            richText.SelectionStart = appendStartPos + posOfKeyword;
             richText.SelectionLength = STR_onRemoteGameEnded.Length;
             richText.SelectionColor = Color.DarkBlue;
 

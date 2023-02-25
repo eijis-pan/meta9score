@@ -41,11 +41,13 @@
             this.richText = new System.Windows.Forms.RichTextBox();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
             this.tabControl.SuspendLayout();
             this.AllVrcLog.SuspendLayout();
             this.BilliardsLog.SuspendLayout();
             this.BilliardLogPanel.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // fileSystemWatcher
@@ -191,12 +193,20 @@
             // statusStrip
             // 
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.statusStrip.Location = new System.Drawing.Point(0, 402);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(0, 392);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 20, 0);
-            this.statusStrip.Size = new System.Drawing.Size(851, 22);
+            this.statusStrip.Size = new System.Drawing.Size(851, 32);
             this.statusStrip.TabIndex = 3;
             this.statusStrip.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(181, 25);
+            this.toolStripStatusLabel.Text = "toolStripStatusLabel1";
             // 
             // BilliardsModuleEventLogger
             // 
@@ -217,6 +227,8 @@
             this.AllVrcLog.PerformLayout();
             this.BilliardsLog.ResumeLayout(false);
             this.BilliardLogPanel.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,5 +249,6 @@
         private RichTextBox richText;
         private Button JumpToTail2;
         private Button ClearLog2;
+        private ToolStripStatusLabel toolStripStatusLabel;
     }
 }

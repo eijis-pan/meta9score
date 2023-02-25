@@ -25,7 +25,11 @@ namespace meta9score
         private int goalPoint = 120;
         private bool teamMemberFixed = false;
         private bool gameModeFixed = false;
-        private string? lastShotPlayer = null; 
+        private bool gameEnded = false;
+        private int gameMode = 0;
+        private string? lastShotPlayer = null;
+        private int packetNumber = 0;
+        private int stateNumber = 0;
 
         public ScoreForm()
         {
@@ -96,6 +100,7 @@ namespace meta9score
             billiardsModuleEventLogger = new BilliardsModuleEventLogger();
             //billiardsModuleEventLogger.OnLogReceived += BilliardsModuleEventLogger_OnLogReceived;
             billiardsModuleEventLogger.OnStartingGameReceived += BilliardsModuleEventLogger_OnRemoteGameStarted;
+            billiardsModuleEventLogger.OnRemoteStateReceived += BilliardsModuleEventLogger_OnRemoteStateReceived;
             billiardsModuleEventLogger.OnGameStateReceived += BilliardsModuleEventLogger_OnGameStateReceived;
             billiardsModuleEventLogger.OnGameResetReceived += BilliardsModuleEventLogger_OnGameResetReceived;
             billiardsModuleEventLogger.OnRemoteLobbyOpened += BilliardsModuleEventLogger_OnRemoteLobbyOpened;
@@ -111,6 +116,7 @@ namespace meta9score
         private void FormScore_Load(object sender, EventArgs e)
         {
             init();
+            timer.Enabled = true;
         }
 
         private void init()
@@ -119,7 +125,7 @@ namespace meta9score
             gameModeFixed = false;
             lastShotPlayer = null;
             playersReset();
-            comboBoxGoalPointList.SelectedIndex = 0;
+            comboBoxGoalPointList.SelectedIndex = (comboBoxGoalPointList.Items.Count - 1);
             scoreReset();
         }
 
@@ -156,11 +162,12 @@ namespace meta9score
             {
                 labelScore.Text = "0";
             }
-            goalPoint = Convert.ToInt32(comboBoxGoalPointList.SelectedItem);
-            foreach (var labelScore in labelRemainPoints)
-            {
-                labelScore.Text = goalPoint.ToString();
-            }
+            //goalPoint = Convert.ToInt32(comboBoxGoalPointList.SelectedItem);
+            //foreach (var labelScore in labelRemainPoints)
+            //{
+            //    labelScore.Text = goalPoint.ToString();
+            //}
+            scoreColorUpdate();
         }
 
         /*
@@ -174,6 +181,25 @@ namespace meta9score
             System.Diagnostics.Debug.WriteLine(billiardsModuleEventArgs.text)
         }
         */
+
+        private void BilliardsModuleEventLogger_OnRemoteStateReceived(object? sender, EventArgs args)
+        {
+            var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
+            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue || null == billiardsModuleEventArgs.intValue2)
+            {
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine("packet={0}, state={1}", billiardsModuleEventArgs.intValue, billiardsModuleEventArgs.intValue2);
+
+            if (stateNumber == billiardsModuleEventArgs.intValue2)
+            {
+                gameEnded = true;
+            }
+
+            packetNumber = (int)billiardsModuleEventArgs.intValue;
+            stateNumber = (int)billiardsModuleEventArgs.intValue2;
+        }
 
         private void BilliardsModuleEventLogger_OnGameStateReceived(object? sender, EventArgs args)
         {
@@ -194,7 +220,7 @@ namespace meta9score
             }
 
             // shot前の状態通知は処理する必要はない
-            if (1 == poolState.turnStateSynced)
+            if (1 == poolState.turnStateSynced && !gameEnded)
             {
                 return;
             }
@@ -219,7 +245,7 @@ namespace meta9score
         private void BilliardsModuleEventLogger_OnRemoteGameSettingsUpdated(object? sender, EventArgs args)
         {
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
-            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue /*|| null == billiardsModuleEventArgs.intValue2 */)
+            if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue || null == billiardsModuleEventArgs.intValue2)
             {
                 return;
             }
@@ -272,6 +298,7 @@ namespace meta9score
                 return;
             }
 
+            gameEnded = false;
             gameModeFixed = true;
             teamMemberFixed = true;
             foreach (var labelPlayer in labelPlayers)
@@ -336,6 +363,7 @@ namespace meta9score
             }
 
             // resetSubTotal();
+            gameEnded = true;
         }
         */
 
@@ -391,8 +419,9 @@ namespace meta9score
             }
         }
 
-        private void changeGameMode(int gameMode)
+        private void changeGameMode(int mode)
         {
+            gameMode = mode;
             if (gameMode == 0)
             {
                 changeTo8ballMode();
@@ -507,6 +536,44 @@ namespace meta9score
             var total = int.Parse(labelTotalScore.Text) + point;
             labelTotalScore.Text = total.ToString();
             labelRemainPoint.Text = (goalPoint - total).ToString();
+
+            scoreColorUpdate();
+        }
+
+        private void scoreColorUpdate()
+        {
+            foreach (var labelScore in labelTotalScores)
+            {
+                var score = int.Parse(labelScore.Text);
+                if (goalPoint <= score)
+                {
+                    labelScore.ForeColor = Color.Red;
+                }
+                else if (goalPoint <= score - 10)
+                {
+                    labelScore.ForeColor = Color.RosyBrown;
+                }
+                else
+                {
+                    labelScore.ForeColor = Color.FromKnownColor(KnownColor.ControlText);
+                }
+            }
+            foreach (var labelScore in labelRemainPoints)
+            {
+                var score = int.Parse(labelScore.Text);
+                if (score <= 10)
+                {
+                    labelScore.ForeColor = Color.RosyBrown;
+                }
+                else if (score <= 0)
+                {
+                    labelScore.ForeColor = Color.Red;
+                }
+                else
+                {
+                    labelScore.ForeColor = Color.FromKnownColor(KnownColor.ControlText);
+                }
+            }
         }
 
         private void menuItemLog_Click(object sender, EventArgs e)
@@ -527,6 +594,39 @@ namespace meta9score
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            labelPlayerFix.Text = string.Format(
+                "プレイヤー認識 : {0}",
+                teamMemberFixed ? "検出済み" : "検出中"
+                );
+            labelGameMode.Text = string.Format(
+                "ゲームモード : {0}",
+                gameModeFixed ? (gameMode == 0 ? "8ball" : "9ball") : "検出中"
+                );
+            labelSource.Text = string.Format(
+                "集計ソース {0}",
+                "ログファイル監視"
+                );
+            labelRemoteState.Text = string.Format(
+                "packet = {0}, state = {1}",
+                packetNumber, stateNumber
+                );
+        }
+
+        private void comboBoxGoalPointList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            goalPoint = Convert.ToInt32(comboBoxGoalPointList.SelectedItem);
+            for (int i = 0; i < labelTotalScores.Length; i++)
+            {
+                var labelTotalScore = labelTotalScores[i];
+                var labelRemainPoint = labelRemainPoints[i];
+                var score = int.Parse(labelTotalScore.Text);
+                labelRemainPoint.Text = (goalPoint - score).ToString();
+            }
+            scoreColorUpdate();
         }
     }
 }

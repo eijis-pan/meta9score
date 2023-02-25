@@ -28,12 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPlayers = new System.Windows.Forms.TableLayoutPanel();
             this.groupBoxTeam2 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanelTeam2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelPlayer2 = new System.Windows.Forms.Label();
+            this.labelPlayer4 = new System.Windows.Forms.Label();
             this.groupBoxTeam1 = new System.Windows.Forms.GroupBox();
             this.flowLayoutPanelTeam1 = new System.Windows.Forms.FlowLayoutPanel();
             this.labelPlayer1 = new System.Windows.Forms.Label();
+            this.labelPlayer3 = new System.Windows.Forms.Label();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.menuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.scoreClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,9 +79,12 @@
             this.flowLayoutPocketedTeam2 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutNocountTeam1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutNocountTeam2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.labelPlayer3 = new System.Windows.Forms.Label();
-            this.labelPlayer2 = new System.Windows.Forms.Label();
-            this.labelPlayer4 = new System.Windows.Forms.Label();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.labelPlayerFix = new System.Windows.Forms.ToolStripStatusLabel();
+            this.labelGameMode = new System.Windows.Forms.ToolStripStatusLabel();
+            this.labelSource = new System.Windows.Forms.ToolStripStatusLabel();
+            this.labelRemoteState = new System.Windows.Forms.ToolStripStatusLabel();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPlayers.SuspendLayout();
             this.groupBoxTeam2.SuspendLayout();
             this.flowLayoutPanelTeam2.SuspendLayout();
@@ -88,6 +95,7 @@
             this.groupBox1.SuspendLayout();
             this.tableLayoutBallsState.SuspendLayout();
             this.flowLayoutAvailBalls.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPlayers
@@ -127,6 +135,28 @@
             this.flowLayoutPanelTeam2.Size = new System.Drawing.Size(647, 95);
             this.flowLayoutPanelTeam2.TabIndex = 1;
             // 
+            // labelPlayer2
+            // 
+            this.labelPlayer2.AutoSize = true;
+            this.labelPlayer2.BackColor = System.Drawing.Color.DodgerBlue;
+            this.labelPlayer2.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer2.Location = new System.Drawing.Point(3, 0);
+            this.labelPlayer2.Name = "labelPlayer2";
+            this.labelPlayer2.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer2.TabIndex = 4;
+            this.labelPlayer2.Text = "player2";
+            // 
+            // labelPlayer4
+            // 
+            this.labelPlayer4.AutoSize = true;
+            this.labelPlayer4.BackColor = System.Drawing.Color.DodgerBlue;
+            this.labelPlayer4.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer4.Location = new System.Drawing.Point(192, 0);
+            this.labelPlayer4.Name = "labelPlayer4";
+            this.labelPlayer4.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer4.TabIndex = 5;
+            this.labelPlayer4.Text = "player4";
+            // 
             // groupBoxTeam1
             // 
             this.groupBoxTeam1.Controls.Add(this.flowLayoutPanelTeam1);
@@ -160,6 +190,17 @@
             this.labelPlayer1.TabIndex = 0;
             this.labelPlayer1.Text = "player1";
             // 
+            // labelPlayer3
+            // 
+            this.labelPlayer3.AutoSize = true;
+            this.labelPlayer3.BackColor = System.Drawing.Color.DarkOrange;
+            this.labelPlayer3.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.labelPlayer3.Location = new System.Drawing.Point(192, 0);
+            this.labelPlayer3.Name = "labelPlayer3";
+            this.labelPlayer3.Size = new System.Drawing.Size(183, 65);
+            this.labelPlayer3.TabIndex = 3;
+            this.labelPlayer3.Text = "player3";
+            // 
             // menuStrip
             // 
             this.menuStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
@@ -186,34 +227,34 @@
             // scoreClearToolStripMenuItem
             // 
             this.scoreClearToolStripMenuItem.Name = "scoreClearToolStripMenuItem";
-            this.scoreClearToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.scoreClearToolStripMenuItem.Size = new System.Drawing.Size(201, 34);
             this.scoreClearToolStripMenuItem.Text = "Score reset";
             this.scoreClearToolStripMenuItem.Click += new System.EventHandler(this.scoreClearToolStripMenuItem_Click);
             // 
             // menuItemConfig
             // 
             this.menuItemConfig.Name = "menuItemConfig";
-            this.menuItemConfig.Size = new System.Drawing.Size(270, 34);
+            this.menuItemConfig.Size = new System.Drawing.Size(201, 34);
             this.menuItemConfig.Text = "Settings";
             this.menuItemConfig.Click += new System.EventHandler(this.menuItemConfig_Click);
             // 
             // menuItemLog
             // 
             this.menuItemLog.Name = "menuItemLog";
-            this.menuItemLog.Size = new System.Drawing.Size(270, 34);
+            this.menuItemLog.Size = new System.Drawing.Size(201, 34);
             this.menuItemLog.Text = "Log";
             this.menuItemLog.Click += new System.EventHandler(this.menuItemLog_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(201, 34);
             this.aboutToolStripMenuItem.Text = "About";
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(201, 34);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -368,14 +409,16 @@
             // comboBoxGoalPointList
             // 
             this.comboBoxGoalPointList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxGoalPointList.Enabled = false;
             this.comboBoxGoalPointList.FormattingEnabled = true;
             this.comboBoxGoalPointList.Items.AddRange(new object[] {
+            "40",
+            "80",
             "120"});
             this.comboBoxGoalPointList.Location = new System.Drawing.Point(59, 30);
             this.comboBoxGoalPointList.Name = "comboBoxGoalPointList";
             this.comboBoxGoalPointList.Size = new System.Drawing.Size(182, 33);
             this.comboBoxGoalPointList.TabIndex = 0;
+            this.comboBoxGoalPointList.SelectedIndexChanged += new System.EventHandler(this.comboBoxGoalPointList_SelectedIndexChanged);
             // 
             // tableLayoutBallsState
             // 
@@ -683,38 +726,60 @@
             this.flowLayoutNocountTeam2.Size = new System.Drawing.Size(433, 76);
             this.flowLayoutNocountTeam2.TabIndex = 7;
             // 
-            // labelPlayer3
+            // statusStrip
             // 
-            this.labelPlayer3.AutoSize = true;
-            this.labelPlayer3.BackColor = System.Drawing.Color.DarkOrange;
-            this.labelPlayer3.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer3.Location = new System.Drawing.Point(192, 0);
-            this.labelPlayer3.Name = "labelPlayer3";
-            this.labelPlayer3.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer3.TabIndex = 3;
-            this.labelPlayer3.Text = "player3";
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.labelPlayerFix,
+            this.labelGameMode,
+            this.labelSource,
+            this.labelRemoteState});
+            this.statusStrip.Location = new System.Drawing.Point(0, 632);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(1317, 36);
+            this.statusStrip.TabIndex = 7;
+            this.statusStrip.Text = "statusStrip1";
             // 
-            // labelPlayer2
+            // labelPlayerFix
             // 
-            this.labelPlayer2.AutoSize = true;
-            this.labelPlayer2.BackColor = System.Drawing.Color.DodgerBlue;
-            this.labelPlayer2.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer2.Location = new System.Drawing.Point(3, 0);
-            this.labelPlayer2.Name = "labelPlayer2";
-            this.labelPlayer2.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer2.TabIndex = 4;
-            this.labelPlayer2.Text = "player2";
+            this.labelPlayerFix.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.labelPlayerFix.Name = "labelPlayerFix";
+            this.labelPlayerFix.Size = new System.Drawing.Size(99, 29);
+            this.labelPlayerFix.Text = "Player認識";
             // 
-            // labelPlayer4
+            // labelGameMode
             // 
-            this.labelPlayer4.AutoSize = true;
-            this.labelPlayer4.BackColor = System.Drawing.Color.DodgerBlue;
-            this.labelPlayer4.Font = new System.Drawing.Font("Yu Gothic UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.labelPlayer4.Location = new System.Drawing.Point(192, 0);
-            this.labelPlayer4.Name = "labelPlayer4";
-            this.labelPlayer4.Size = new System.Drawing.Size(183, 65);
-            this.labelPlayer4.TabIndex = 5;
-            this.labelPlayer4.Text = "player4";
+            this.labelGameMode.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.labelGameMode.Name = "labelGameMode";
+            this.labelGameMode.Size = new System.Drawing.Size(109, 29);
+            this.labelGameMode.Text = "GameMode";
+            // 
+            // labelSource
+            // 
+            this.labelSource.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.labelSource.Name = "labelSource";
+            this.labelSource.Size = new System.Drawing.Size(91, 29);
+            this.labelSource.Text = "集計ソース";
+            // 
+            // labelRemoteState
+            // 
+            this.labelRemoteState.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.labelRemoteState.Name = "labelRemoteState";
+            this.labelRemoteState.Size = new System.Drawing.Size(115, 29);
+            this.labelRemoteState.Text = "packet, state";
+            // 
+            // timer
+            // 
+            this.timer.Interval = 300;
+            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
             // ScoreForm
             // 
@@ -723,6 +788,7 @@
             this.AutoScroll = true;
             this.AutoScrollMinSize = new System.Drawing.Size(800, 600);
             this.ClientSize = new System.Drawing.Size(1317, 668);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tableLayoutBallsState);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.tableLayoutScores);
@@ -748,6 +814,8 @@
             this.tableLayoutBallsState.ResumeLayout(false);
             this.flowLayoutAvailBalls.ResumeLayout(false);
             this.flowLayoutAvailBalls.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -805,5 +873,11 @@
         private FlowLayoutPanel flowLayoutNocountTeam1;
         private FlowLayoutPanel flowLayoutNocountTeam2;
         private ToolStripMenuItem exitToolStripMenuItem;
+        private StatusStrip statusStrip;
+        private ToolStripStatusLabel labelPlayerFix;
+        private System.Windows.Forms.Timer timer;
+        private ToolStripStatusLabel labelGameMode;
+        private ToolStripStatusLabel labelSource;
+        private ToolStripStatusLabel labelRemoteState;
     }
 }
