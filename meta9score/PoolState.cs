@@ -81,7 +81,7 @@ namespace meta9score
         public string dump()
         {
             return string.Format(
-                "cueBallV={0} cueBallW={1} ballsPocketed={2} teamId={3} repositionState={4} isTableOpen={5} teamColor={6} turnState={7} gameMode={8} timer={9} teams={10} fourBallScores={11},{12} fourBallCueBall={13}",
+                "ballsPocketed={2} teamId={3} repositionState={4} isTableOpen={5} teamColor={6} turnState={7} gameMode={8} timer={9} teams={10} fourBallScores={11},{12} fourBallCueBall={13}, cueBallV={0} cueBallW={1}",
                 cueBallVSynced,
                 cueBallWSynced,
                 Convert.ToString(ballsPocketedSynced, 2).PadLeft(16, '0'),

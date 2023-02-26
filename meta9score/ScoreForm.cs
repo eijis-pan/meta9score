@@ -15,6 +15,22 @@ namespace meta9score
         private Label[][] labelTeamPlayers;
         private Color[] colorTeams;
 
+        private stringReference[] currentPoolTeamSidePlayers;
+        private stringReference[][] playersByCurrentPoolTeamSide;
+        private class stringReference
+        {
+            public string? value = null;
+            public stringReference()
+            {
+
+            }
+
+            public stringReference(string? value)
+            {
+                this.value = value;
+            }
+        }
+
         private Label[] labelCurrentScores;
         private Label[] labelTotalScores;
         private Label[] labelRemainPoints;
@@ -66,6 +82,20 @@ namespace meta9score
             colorTeams = new Color[]
             {
                 labelPlayer1.BackColor, labelPlayer2.BackColor
+            };
+
+            currentPoolTeamSidePlayers = new stringReference[]
+            {
+                new stringReference(string.Empty),
+                new stringReference(string.Empty),
+                new stringReference(string.Empty),
+                new stringReference(string.Empty)
+            };
+
+            playersByCurrentPoolTeamSide = new stringReference[][]
+            {
+                new stringReference[]{ currentPoolTeamSidePlayers[0], currentPoolTeamSidePlayers[2] },
+                new stringReference[]{ currentPoolTeamSidePlayers[1], currentPoolTeamSidePlayers[3] }
             };
 
             labelCurrentScores = new Label[]
@@ -151,6 +181,11 @@ namespace meta9score
                     labelPlayer.BackColor = color;
                 }
             }
+
+            for (int i = 0; i < currentPoolTeamSidePlayers.Length; i++)
+            {
+                currentPoolTeamSidePlayers[i].value = string.Empty;
+            }
         }
 
         private void scoreReset()
@@ -164,10 +199,10 @@ namespace meta9score
                 labelScore.Text = "0";
             }
             //goalPoint = Convert.ToInt32(comboBoxGoalPointList.SelectedItem);
-            //foreach (var labelScore in labelRemainPoints)
-            //{
-            //    labelScore.Text = goalPoint.ToString();
-            //}
+            foreach (var labelScore in labelRemainPoints)
+            {
+                labelScore.Text = goalPoint.ToString();
+            }
             scoreColorUpdate();
         }
 
@@ -280,21 +315,27 @@ namespace meta9score
                 return;
             }
 
-            if (teamMemberFixed)
-            {
-                return;
-            }
+            //if (teamMemberFixed)
+            //{
+            //    return;
+            //}
                 
             for (int i = 0; i < labelPlayers.Length && i < billiardsModuleEventArgs.players.Length; i++)
             {
                 var player = billiardsModuleEventArgs.players[i];
                 if (!string.IsNullOrEmpty(player))
                 {
-                    var labelPlayer = labelPlayers[i];
-                    labelPlayer.Text = player;
-                    labelPlayer.Visible = true;
+                    if (!teamMemberFixed)
+                    {
+                        var labelPlayer = labelPlayers[i];
+                        labelPlayer.Text = player;
+                        labelPlayer.Visible = true;
+                    }
+
+                    currentPoolTeamSidePlayers[i].value = player;
                 }
             }
+            System.Diagnostics.Debug.WriteLine("currentPoolPlayers: " + string.Join(", ", currentPoolTeamSidePlayers.Select(x => x.value).ToArray()));
         }
 
         private void BilliardsModuleEventLogger_OnRemoteGameStarted(object? sender, EventArgs args)
@@ -316,6 +357,9 @@ namespace meta9score
                     labelPlayer.Visible = false;
                 }
             }
+
+            System.Diagnostics.Debug.WriteLine("labelPlayers: " + string.Join(", ", labelPlayers.Select(x => x.Text).ToArray()));
+            System.Diagnostics.Debug.WriteLine("currentPoolPlayers: " + string.Join(", ", currentPoolTeamSidePlayers.Select(x => x.value).ToArray()));
         }
 
         /*
@@ -362,6 +406,8 @@ namespace meta9score
 
         private void BilliardsModuleEventLogger_OnRemoteGameEnded(object? sender, EventArgs args)
         {
+            System.Diagnostics.Debug.WriteLine("OnRemoteGameEnded");
+
             var billiardsModuleEventArgs = args as BilliardsModuleEventLoggerEventArgs;
             if (null == billiardsModuleEventArgs || null == billiardsModuleEventArgs.intValue)
             {
@@ -372,19 +418,29 @@ namespace meta9score
             //gameEnded = true;
 
             // 勝った側
-            var winnerTeamIndex = billiardsModuleEventArgs.intValue;
+            var winnerTeamCurrentPoolTeamSideIndex = billiardsModuleEventArgs.intValue;
+            System.Diagnostics.Debug.WriteLine(string.Format("winnerTeamIndex {0}", winnerTeamCurrentPoolTeamSideIndex));
+
+            System.Diagnostics.Debug.WriteLine(string.Format("lastShotPlayer {0}", lastShotPlayer));
 
             // 最後に突いた側
-            var teamIndex = indexOfLastShotTeamByPlayer(lastShotPlayer);
-            if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
-            {
-                lastShotPlayer = null;
-            }
+            var currentPoolTeamSideIndex = indexOfLastShotCurrentPoolTeamSideByPlayer(lastShotPlayer);
+            //if (0 <= teamIndex && teamIndex < labelTeamPlayers.Length)
+            //{
+            //    lastShotPlayer = null;
+            //}
+            System.Diagnostics.Debug.WriteLine(string.Format("teamIndex of lastShotPlayer {0}", currentPoolTeamSideIndex));
 
             // Game End の状態でポケット判定する
             var ballProcketedFlags = PoolState.ballProcketedFlags(gameEndState.ballsPocketedSynced);
-            var foul = (winnerTeamIndex != teamIndex);
+            var foul = (winnerTeamCurrentPoolTeamSideIndex != currentPoolTeamSideIndex);
+            System.Diagnostics.Debug.WriteLine(string.Format("flag of foul {0}", foul));
             updatePocketed(ballProcketedFlags, foul);
+
+            for (int i = 0; i < currentPoolTeamSidePlayers.Length; i++)
+            {
+                currentPoolTeamSidePlayers[i].value = string.Empty;
+            }
         }
 
         /*
@@ -540,6 +596,27 @@ namespace meta9score
             return -1;
         }
 
+        private int indexOfLastShotCurrentPoolTeamSideByPlayer(string lastShotPlayer)
+        {
+            if (null == lastShotPlayer)
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < playersByCurrentPoolTeamSide.Length; i++)
+            {
+                for (int j = 0; j < playersByCurrentPoolTeamSide[i].Length; j++)
+                {
+                    if (playersByCurrentPoolTeamSide[i][j].value == lastShotPlayer)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         private void scoreCountUp(int teamIndex, int point)
         {
             if (teamIndex < 0 || labelTeamPlayers.Length <= teamIndex || 0 == point)
@@ -627,7 +704,7 @@ namespace meta9score
                 gameModeFixed ? (gameMode == 0 ? "8ball" : "9ball") : "検出中"
                 );
             labelSource.Text = string.Format(
-                "集計ソース {0}",
+                "集計ソース : {0}",
                 "ログファイル監視"
                 );
             labelRemoteState.Text = string.Format(
