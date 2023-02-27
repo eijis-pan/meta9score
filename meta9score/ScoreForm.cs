@@ -158,6 +158,7 @@ namespace meta9score
             playersReset();
             comboBoxGoalPointList.SelectedIndex = (comboBoxGoalPointList.Items.Count - 1);
             scoreReset();
+            resetBallToolTips();
         }
 
         private void playersReset()
@@ -420,6 +421,11 @@ namespace meta9score
             // 勝った側
             var winnerTeamCurrentPoolTeamSideIndex = billiardsModuleEventArgs.intValue;
             System.Diagnostics.Debug.WriteLine(string.Format("winnerTeamIndex {0}", winnerTeamCurrentPoolTeamSideIndex));
+            if (2 == winnerTeamCurrentPoolTeamSideIndex)
+            {
+                // リセットの場合
+                return;
+            }
 
             System.Diagnostics.Debug.WriteLine(string.Format("lastShotPlayer {0}", lastShotPlayer));
 
@@ -479,7 +485,8 @@ namespace meta9score
             for (int i = 9; i <= labelBalls.Length; i++)
             {
                 var labelBall = labelBalls[i - 1];
-                labelBall.Tag = (i - 8).ToString();
+                var point = checkBox8BallCustomPoint.Checked ? (i - 8) : i;
+                labelBall.Tag = point.ToString();
                 labelBall.Visible = true;
             }
         }
@@ -507,6 +514,28 @@ namespace meta9score
                 changeTo9ballMode();
             }
 
+            resetBallToolTips();
+
+            if (gameModeFixed)
+            {
+                if (gameMode == 0)
+                {
+                    groupBoxOption.Visible = true;
+                }
+                else if (gameMode == 1)
+                {
+                    groupBoxOption.Visible = false;
+                }
+            }
+        }
+
+        private void resetBallToolTips()
+        {
+            for (int i = 0; i < labelBalls.Length; i++)
+            {
+                var labelBall = labelBalls[i];
+                toolTip.SetToolTip(labelBall, string.Format("{0}点", labelBall.Tag));
+            }
         }
 
         private void rollbackCurrentGame()
@@ -724,6 +753,12 @@ namespace meta9score
                 labelRemainPoint.Text = (goalPoint - score).ToString();
             }
             scoreColorUpdate();
+        }
+
+        private void checkBox8BallCustomPoint_CheckedChanged(object sender, EventArgs e)
+        {
+            changeTo8ballMode();
+            resetBallToolTips();
         }
     }
 }

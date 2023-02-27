@@ -85,6 +85,9 @@
             this.labelSource = new System.Windows.Forms.ToolStripStatusLabel();
             this.labelRemoteState = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer = new System.Windows.Forms.Timer(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBoxOption = new System.Windows.Forms.GroupBox();
+            this.checkBox8BallCustomPoint = new System.Windows.Forms.CheckBox();
             this.tableLayoutPlayers.SuspendLayout();
             this.groupBoxTeam2.SuspendLayout();
             this.flowLayoutPanelTeam2.SuspendLayout();
@@ -96,6 +99,7 @@
             this.tableLayoutBallsState.SuspendLayout();
             this.flowLayoutAvailBalls.SuspendLayout();
             this.statusStrip.SuspendLayout();
+            this.groupBoxOption.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPlayers
@@ -781,6 +785,32 @@
             this.timer.Interval = 300;
             this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
+            // groupBoxOption
+            // 
+            this.groupBoxOption.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.groupBoxOption.AutoSize = true;
+            this.groupBoxOption.Controls.Add(this.checkBox8BallCustomPoint);
+            this.groupBoxOption.Location = new System.Drawing.Point(816, 194);
+            this.groupBoxOption.Name = "groupBoxOption";
+            this.groupBoxOption.Size = new System.Drawing.Size(331, 93);
+            this.groupBoxOption.TabIndex = 8;
+            this.groupBoxOption.TabStop = false;
+            this.groupBoxOption.Text = "Option";
+            this.groupBoxOption.Visible = false;
+            // 
+            // checkBox8BallCustomPoint
+            // 
+            this.checkBox8BallCustomPoint.AutoSize = true;
+            this.checkBox8BallCustomPoint.Checked = true;
+            this.checkBox8BallCustomPoint.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox8BallCustomPoint.Location = new System.Drawing.Point(6, 32);
+            this.checkBox8BallCustomPoint.Name = "checkBox8BallCustomPoint";
+            this.checkBox8BallCustomPoint.Size = new System.Drawing.Size(305, 29);
+            this.checkBox8BallCustomPoint.TabIndex = 0;
+            this.checkBox8BallCustomPoint.Text = "8ballで9番～15番を1点～7点にする";
+            this.checkBox8BallCustomPoint.UseVisualStyleBackColor = true;
+            this.checkBox8BallCustomPoint.CheckedChanged += new System.EventHandler(this.checkBox8BallCustomPoint_CheckedChanged);
+            // 
             // ScoreForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
@@ -788,6 +818,7 @@
             this.AutoScroll = true;
             this.AutoScrollMinSize = new System.Drawing.Size(800, 600);
             this.ClientSize = new System.Drawing.Size(1317, 668);
+            this.Controls.Add(this.groupBoxOption);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tableLayoutBallsState);
             this.Controls.Add(this.groupBox1);
@@ -816,6 +847,8 @@
             this.flowLayoutAvailBalls.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
+            this.groupBoxOption.ResumeLayout(false);
+            this.groupBoxOption.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -879,5 +912,8 @@
         private ToolStripStatusLabel labelGameMode;
         private ToolStripStatusLabel labelSource;
         private ToolStripStatusLabel labelRemoteState;
+        private ToolTip toolTip;
+        private GroupBox groupBoxOption;
+        private CheckBox checkBox8BallCustomPoint;
     }
 }
