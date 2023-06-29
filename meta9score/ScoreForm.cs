@@ -437,11 +437,14 @@ namespace meta9score
             //}
             System.Diagnostics.Debug.WriteLine(string.Format("teamIndex of lastShotPlayer {0}", currentPoolTeamSideIndex));
 
-            // Game End の状態でポケット判定する
-            var ballProcketedFlags = PoolState.ballProcketedFlags(gameEndState.ballsPocketedSynced);
-            var foul = (winnerTeamCurrentPoolTeamSideIndex != currentPoolTeamSideIndex);
-            System.Diagnostics.Debug.WriteLine(string.Format("flag of foul {0}", foul));
-            updatePocketed(ballProcketedFlags, foul);
+            if (null != gameEndState)
+            {
+                // Game End の状態でポケット判定する
+                var ballProcketedFlags = PoolState.ballProcketedFlags(gameEndState.ballsPocketedSynced);
+                var foul = (winnerTeamCurrentPoolTeamSideIndex != currentPoolTeamSideIndex);
+                System.Diagnostics.Debug.WriteLine(string.Format("flag of foul {0}", foul));
+                updatePocketed(ballProcketedFlags, foul);
+            }
 
             for (int i = 0; i < currentPoolTeamSidePlayers.Length; i++)
             {

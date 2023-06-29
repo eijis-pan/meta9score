@@ -733,7 +733,11 @@ namespace meta9score
                 richText.SelectionColor = Color.AntiqueWhite;
 
                 var hex4Char = partOf_onRemoteBallsPocketedChanged[1].PadLeft(4, '0');
-                var ballsPocketdValue = Convert.ToUInt16(hex4Char, 16);
+                if (4 < hex4Char.Length)
+                {
+                    hex4Char = hex4Char.Substring(hex4Char.Length - 4, 4);
+                }
+                var ballsPocketdValue = (ushort)Convert.ToUInt32(hex4Char, 16);
                 ballProcketedFlags = PoolState.ballProcketedFlags(ballsPocketdValue);
 
                 System.Diagnostics.Debug.WriteLine("OnRemoteBallsPocketedChanged {0}", Convert.ToString(ballsPocketdValue, 2).PadLeft(16, '0'));
